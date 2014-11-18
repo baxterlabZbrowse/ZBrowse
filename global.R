@@ -20,12 +20,28 @@ addResourcePath('highcharts','www/highcharts/')
 #aggTable$modIncProb = aggTable$numIterations/100
 #aggTable <- aggTable[order(aggTable$chr,aggTable$bp),]
 
+
+files<-list.files(path="./")
+chrSize<-list()
+for(i in 1:length(files)){
+  if(tools::file_ext(files[i]) == "txt"){
+    filename=""
+    filename=paste("./",files[i],sep="")
+    conn=file(filename,open="r")
+    data<-readLines(conn)
+    
+    key<-data[1]
+    value<-c(lapply(strsplit(data[2], ","), as.numeric))
+    chrSize[key]<-value
+    
+    close(conn)
+  }
+}
 #List of chromsome lengths for various organisms
-chrSize <- list(Corn=c(301354135,237068873,232140174,241473504,217872852,169174353,176764762,175793759,156750706,150189435),
-     Soybean=c(55915595,51656713,47781076,49243852,41936504,50722821,44683157,46995532,46843750,50969635,39172790,40113140,44408971,49711204,50939160,37397385,41906774,62308140,50589441,46773167),
-     Arabidopsis=c(30427671,19698289,23459830,18585056,26975502),
-     Rice=c(43270923,35937250,36413819,35502694,29958434,31248787,29697621,28443022,23012720,23207287,29021106,27531856)
-     )
+#chrSize <- list(Corn=c(301354135,237068873,232140174,241473504,217872852,169174353,176764762,175793759,156750706,150189435),
+ #    Soybean=c(55915595,51656713,47781076,49243852,41936504,50722821,44683157,46995532,46843750,50969635,39172790,40113140,44408971,49711204,50939160,37397385,41906774,62308140,50589441,46773167),
+  #   Arabidopsis=c(30427671,19698289,23459830,18585056,26975502),
+   #  Sorghum=c(73933847,78027413,74539055,68108026,62428788,62294152,64407977,55559831,59722314,61076732))
 
 #much slower way of adding totalBP
 #aggTable <- adply(aggTable,1,function(x){data.frame(totalBP=sum(x$bp,chrSize$bp[chrSize$chr %in% if(x$chr==1) 0 else c(1:(x$chr-1))]))})
@@ -37,12 +53,27 @@ chrSize <- list(Corn=c(301354135,237068873,232140174,241473504,217872852,1691743
 #}
 #aggTable$totalBP<-aggTable$bp+adjust
 
+
+annotGeneLoc<-list()
+for(i in 1:length(files)){
+  if(tools::file_ext(files[i]) == "txt"){
+    filename=""
+    filename=paste("./",files[i],sep="")
+    conn=file(filename,open="r")
+    data<-readLines(conn)
+    
+    key<-data[1]
+    locValue<-read.table(data[3],sep=",",head=TRUE,stringsAsFactors = FALSE)
+    annotGeneLoc[key]<-list(locValue)
+    
+    close(conn)
+  }
+}
 #load annotation data files
-annotGeneLoc <- list(Corn=read.table("./ZmB73_Canonical_Gene_func_annotations.csv",sep=",",head=TRUE,stringsAsFactors = FALSE),
-                     Soybean=read.delim("./mergedSoyAnnotations.modifiedForBrowser.txt",sep="\t",head=TRUE,stringsAsFactors=FALSE,na.strings="NA",comment.char=""),
-                     Arabidopsis = read.table("./mergedTAIR10Annotations.modifiedForBrowser.txt",sep="\t",head=TRUE,stringsAsFactors=FALSE,comment.char=""),
-                     Rice = read.table("./RiceOut.txt",sep="\t",head=TRUE,stringsAsFactors=FALSE,comment.char="")
-                     )
+#annotGeneLoc <- list(Corn=read.table("./ZmB73_Canonical_Gene_func_annotations.csv",sep=",",head=TRUE,stringsAsFactors = FALSE),
+ #                    Soybean=read.delim("./mergedSoyAnnotations.modifiedForBrowser.txt",sep="\t",head=TRUE,stringsAsFactors=FALSE,na.strings="NA",comment.char=""),
+  #                   Arabidopsis = read.table("./mergedTAIR10Annotations.modifiedForBrowser.txt",sep="\t",head=TRUE,stringsAsFactors=FALSE,comment.char=""),
+   #                  Sorghum = read.table("./SorghumV1.4.with2.1annotations.mergedPhytozomeFiles.csv",sep=",",head=TRUE,stringsAsFactors=FALSE,comment.char=""))
 
 helpPopup <- function(title, content, placement=c('right', 'top', 'left', 'bottom'),
                       trigger=c('click', 'hover', 'focus', 'manual')) {  

@@ -311,9 +311,21 @@ shinyServer(function(input, output, session) {
     }else{
       selected = "Corn"
     }
-    #Add Rice
-    #
-    selectizeInput("organism", "Dataset Organism:", choices = c("Corn","Soybean","Arabidopsis","Rice"), selected = selected, multiple = FALSE, options = list(dropdownParent="body"))
+    # = c("Corn","Soybean","Arabidopsis","Sorghum")
+    choices<-list()
+    files<-list.files(path="./")
+    for(i in 1:length(files)){
+      if(tools::file_ext(files[i]) == "txt"){
+        filename=""
+        filename=paste("./",files[i],sep="")
+        conn=file(filename,open="r")
+        data<-readLines(conn)
+        choices[[i]] <- data[1]
+        
+        close(conn)
+      }
+    }
+    selectizeInput("organism", "Dataset Organism:", unlist(choices), selected = selected, multiple = FALSE, options = list(dropdownParent="body"))
   })
   
   output$chrColumn <- renderUI({
@@ -536,7 +548,7 @@ shinyServer(function(input, output, session) {
     } else if(ext == 'dta') {
       values[[objname]] <- read.dta(uFile)
     } else if(ext == 'csv') {
-      values[[objname]] <- read.csv(uFile, header=input$header, sep=input$sep)
+      values[[objname]] <- read.csv(uFile, header=input$header, sep=input$sep,stringsAsFactors=FALSE)
     }
   }
   
@@ -545,11 +557,11 @@ shinyServer(function(input, output, session) {
     if("totalBP" %in% colnames(values[[input$datasets]])){
       
     }else{
-      #progress <- Progress$new(session, min=1, max=1)
-      #on.exit(progress$close())
+#      progress <- Progress$new(session, min=1, max=1)
+#      on.exit(progress$close())
       
-      #progress$set(message = 'Preparing data for plotting.',
-                  # detail = 'This may take a few seconds...')
+#      progress$set(message = 'Preparing data for plotting.',
+#                   detail = 'This may take a few seconds...')
 #       withProgress(session, min=1, max=400, expr={
 #         for(i in 1:400) {
 #           setProgress(message = 'Preparing Data for Plotting',
@@ -558,7 +570,7 @@ shinyServer(function(input, output, session) {
 #           #print(i)
 #           Sys.sleep(0.1)
 #         }
-#       })      
+#       })     
       cumBP<-c(0,cumsum(as.numeric(chrSize[input$organism][[1]])))
       values[[input$datasets]] <- values[[input$datasets]][order(values[[input$datasets]][,input$chrColumn],values[[input$datasets]][,input$bpColumn]),]
       numeachchr<-aggregate(values[[input$datasets]][,input$bpColumn],list(values[[input$datasets]][,input$chrColumn]),length)
@@ -1175,6 +1187,8 @@ shinyServer(function(input, output, session) {
     urlBase <- 'http://maizegdb.org/cgi-bin/displaygenemodelrecord.cgi?id='
     soyurlBase <- 'http://www.soybase.org/sbt/search/search_results.php?category=FeatureName&search_term='
     araburlBase <- 'http://arabidopsis.org/servlets/TairObject?type=locus&name='
+    sorgurlBase <- 'http://phytozome.jgi.doe.gov/pz/portal.html#!gene?search=1&detail=1&method=3451&searchText=transcriptid:'
+
     annotYvalReverse <- 0.01    
     #if(input$axisLimBool == TRUE){annotYvalReverse <- input$axisMin+0.01}
     annotYvalForward <- annotYvalReverse + 0.04
@@ -1240,9 +1254,7 @@ shinyServer(function(input, output, session) {
                                                                            x$short_description
                                                                           # x$Curator_summary
                                                               ),
-                                                              stringsAsFactors=FALSE)}) 
-      #Add Rice(or generic organism) part here, not right here but around here. Maybe make it display info in info is present, else leave empty
-      #This might allow one function for all organisms?
+                                                              stringsAsFactors=FALSE)})   
       
       annotTableReverse <- adply(thisAnnot[thisAnnot$strand=="-",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalReverse,annotYvalReverse,NA),url=paste0(araburlBase,x$Locus),
                                                                                      name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Short Desc.: %6$s</td></tr></table>",
@@ -1255,38 +1267,37 @@ shinyServer(function(input, output, session) {
                                                                                                   # x$Curator_summary
                                                                                      ),
                                                                                      stringsAsFactors=FALSE)})
+    }else{#} if(input$organism == "Sorghum"){#strand is '+' or '-'
+      annotTable <- adply(thisAnnot[thisAnnot$strand=="+",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalForward,annotYvalForward,NA),url=paste0(sorgurlBase,x$ID),
+                                                                                      name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s:%2$s</th></tr><tr><td align='left'>Location: %3$s-%4$s<br>Chromosome: %5$s, Strand: %6$s<br>Desc: %7$s<br>Top TAIR Hit: %8$s<br>Top Rice Hit: %9$s</td></tr></table>",
+                                                                                                   x$name,
+                                                                                                   x$V2.1,
+                                                                                                   prettyNum(x$transcript_start, big.mark = ","),
+                                                                                                   prettyNum(x$transcript_end, big.mark = ","),
+                                                                                                   x$chromosome,                                                                           
+                                                                                                   x$strand,
+                                                                                                   x$defLine,
+                                                                                                   x$bestArabHitDefline,
+                                                                                                   x$bestRiceHitDefline
+                                                                                                   # x$Curator_summary
+                                                                                      ),
+                                                                                      stringsAsFactors=FALSE)})   
+      
+      annotTableReverse <- adply(thisAnnot[thisAnnot$strand=="-",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalReverse,annotYvalReverse,NA),url=paste0(sorgurlBase,x$ID),
+                                                                                             name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s:%2$s</th></tr><tr><td align='left'>Location: %3$s-%4$s<br>Chromosome: %5$s, Strand: %6$s<br>Desc: %7$s<br>Top TAIR Hit: %8$s<br>Top Rice Hit: %9$s</td></tr></table>",
+                                                                                                          x$name,
+                                                                                                          x$V2.1,
+                                                                                                          prettyNum(x$transcript_start, big.mark = ","),
+                                                                                                          prettyNum(x$transcript_end, big.mark = ","),
+                                                                                                          x$chromosome,                                                                           
+                                                                                                          x$strand,
+                                                                                                          x$defLine,
+                                                                                                          x$bestArabHitDefline,
+                                                                                                          x$bestRiceHitDefline
+                                                                                                          # x$Curator_summary
+                                                                                             ),
+                                                                                             stringsAsFactors=FALSE)})
     }
-
-else{#strand is '+' or '-'
-  annotTable <- adply(thisAnnot[thisAnnot$strand=="+",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalForward,annotYvalForward,NA),url=paste0(araburlBase,x$Locus),
-                                                                                  name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Short Desc.: %6$s</td></tr></table>",
-                                                                                               x$name,
-                                                                                               prettyNum(x$transcript_start, big.mark = ","),
-                                                                                               prettyNum(x$transcript_end, big.mark = ","),
-                                                                                               x$chromosome,                                                                           
-                                                                                               x$strand,
-                                                                                               x$short_description
-                                                                                               # x$Curator_summary
-                                                                                  ),
-                                                                                  stringsAsFactors=FALSE)}) 
-  
-  annotTableReverse <- adply(thisAnnot[thisAnnot$strand=="-",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalReverse,annotYvalReverse,NA),url=paste0(araburlBase,x$Locus),
-                                                                                         name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Short Desc.: %6$s</td></tr></table>",
-                                                                                                      x$name,
-                                                                                                      prettyNum(x$transcript_start, big.mark = ","),
-                                                                                                      prettyNum(x$transcript_end, big.mark = ","),
-                                                                                                      x$chromosome,                                                                           
-                                                                                                      x$strand,
-                                                                                                      x$short_description
-                                                                                                      # x$Curator_summary
-                                                                                         ),
-                                                                                         stringsAsFactors=FALSE)})
-}
-
-
-######################
-
-
     #annotTable <- annotTable[,c("x","y","name","url","marker")]
     annotTable <- annotTable[,c("x","y","name","url")]
     annotTable <- annotTable[order(annotTable$x),]
