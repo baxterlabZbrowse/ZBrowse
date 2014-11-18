@@ -1,0 +1,132 @@
+label.radio { 
+  padding-left: 18px;
+  padding-right: 0px;
+  margin-left: 3px;
+  display: inline-block; 
+}
+
+.radio input[type="radio"] {
+  float: none; 
+}
+
+label.checkbox  { 
+  display: inline-block; 
+}
+
+.checkbox input[type="checkbox"] { 
+  float: none; 
+}
+
+select { 
+  max-width: 200px; 
+}
+
+textarea { 
+  width: 650px; 
+  /*max-height: 200px;*/
+  /*overflow: auto;*/
+  /*height: auto;*/
+  
+  /*http://plugins.jquery.com/autosize/*/
+}
+
+#tr_copyAndPaste {
+  max-width: 185px; 
+}
+
+input[type="number"] {
+  max-width: 185px; 
+}
+
+.jslider { 
+  max-width: 200px; 
+}
+
+.well { 
+  padding: 12px; 
+  margin-bottom: 5px; 
+  max-width: 280px; 
+}
+/*
+.span4 { 
+  max-width: 280px; 
+}
+*/
+/*see element sizing discussion here: https://groups.google.com/forum/#!topic/shiny-discuss/3m7cq96mcBY */
+.row-fluid {
+    padding-left: 275px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+.row-fluid .span4 {
+    position: relative;
+    float:left;
+    width: 275px;
+    right: 285px;
+    margin-right: -275px;
+}
+
+.row-fluid .span8 {
+    float: right;
+    position: relative;
+    padding-left: 10px;
+    padding-right: 10px;
+    width: 100%;
+}
+
+.popover { 
+  width: 600px; 
+  position: relative; top: -75px !important; 
+  left: 320px !important; 
+}
+
+.modal { 
+  /*width: 1000px; */
+  width: 800px; 
+  left: 600px; 
+}
+
+.modal-body {
+  height: 100%;
+  max-height:500px;
+}
+
+#uploadfile {
+  max-width: 230px;
+}
+
+#columns { 
+  height: 200px; 
+  margin-bottom: 35px;
+}
+
+#dv_select, #expl_select, #viz_select, #tr_subset, #tr_rename, #tr_recode, #tr_transform { 
+  max-width: 185px; 
+}
+
+#view_order { 
+  max-width: 135px; 
+  display: inline;
+}
+
+#view_order_desc { 
+  vertical-align: top; 
+}
+
+#downloadData { 
+  vertical-align: top; 
+  height: 18.5px; 
+  width: 70px;
+}
+
+#viz_plot_width, #viz_plot_height, #pmap_scaling, #pmap_fontsz { 
+  max-width: 60px; 
+}
+
+#fac_cutoff { 
+  max-width: 60px; 
+}
+
+#fac_condFormat { 
+  vertical-align: middle; 
+}

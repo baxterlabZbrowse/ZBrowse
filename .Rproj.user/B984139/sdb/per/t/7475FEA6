@@ -1,0 +1,16 @@
+{
+    "contents" : "shinyUI(pageWithSidebar(  \n  headerPanel(\"\"),\n  sidebarPanel(\n    includeCSS('www/style.css'),\n#    wellPanel(\n#      uiOutput(\"datasets\")\n#    ),\n    #uiOutput(\"ui_Manage\")\n    uiOutput(\"ui_All\")\n  ),\n  mainPanel(\n    tagList( # The four core files: 3 JS files and 1 CSS file --\n#      singleton(tags$head(tags$script(src='js/highcharts.js',type='text/javascript'))),\n      \n      singleton(tags$head(tags$script(src='/datatables/js/jquery.dataTables.js',type='text/javascript'))),\n      singleton(tags$head(tags$script(src='/tabletools/js/TableTools.js',type='text/javascript'))),\n      singleton(tags$head(tags$script(src='/tabletools/js/ZeroClipboard.js',type='text/javascript'))),\n      singleton(tags$head(tags$link(href='/tabletools/css/TableTools.css',rel='stylesheet',type='text/css')))\n      #singleton(tags$head(tags$script(src='http://code.highcharts.com/highcharts.js',type='text/javascript')))\n    ),    \n    #progressInit(),    \n    uiOutput(\"ui_data_tabs\")\n    #tableOutput('contents')\n  )\n))\n",
+    "created" : 1409165502014.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "908122548",
+    "id" : "7475FEA6",
+    "lastKnownWriteTime" : 1409263550,
+    "path" : "~/Dropbox/GWASbrowser/interactiveGWASuploadable/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
