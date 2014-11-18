@@ -1,0 +1,3 @@
+Arabidopsis
+30427671,19698289,23459830,18585056,26975502
+./mergedTAIR10Annotations.modifiedForBrowser.csv
