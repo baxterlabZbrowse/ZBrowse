@@ -1,4 +1,4 @@
-To install and run Z-Browse in R Studio:
+To install packages and run Z-Browse in R Studio:
 
 	At the R prompt in R Studio enter the command
 	
