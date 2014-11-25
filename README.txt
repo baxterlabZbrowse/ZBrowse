@@ -1,8 +1,25 @@
-To install packages and run Z-Browse in R Studio:
+Requirements:
 
-	At the R prompt in R Studio enter the command
+	- R
+
+	- R Studio
+
+Download and Install:
+	
+	1. Navigate to http://www.baxterlab.org/?
+	
+	2. Click Download ZBrowse
+	
+		This will download a zipped file to your computer. 
+		
+	3. Unzip the file and open:
+		
+		interactiveGWASuploadable.Rproj
+			
+		This will open the project in R Studio.
+			
+	4. At the R command prompt enter: 
 	
 		source("startup.R")
-		
-	This will check for the required packages and install them if they are not found.
-	You can use the same command to run Z-Browse in the future.
+
+		This will check for and install any necessary libraries and open ZBrowse.
