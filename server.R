@@ -313,11 +313,11 @@ shinyServer(function(input, output, session) {
     }
     # = c("Corn","Soybean","Arabidopsis","Sorghum")
     choices<-list()
-    files<-list.files(path="./")
+    files<-list.files(path="./organisms/")
     for(i in 1:length(files)){
       if(tools::file_ext(files[i]) == "txt"){
         filename=""
-        filename=paste("./",files[i],sep="")
+        filename=paste("./organisms/",files[i],sep="")
         conn=file(filename,open="r")
         data<-readLines(conn)
         choices[[i]] <- data[1]

@@ -21,12 +21,12 @@ addResourcePath('highcharts','www/highcharts/')
 #aggTable <- aggTable[order(aggTable$chr,aggTable$bp),]
 
 
-files<-list.files(path="./")
+files<-list.files(path="./organisms/")
 chrSize<-list()
 for(i in 1:length(files)){
   if(tools::file_ext(files[i]) == "txt"){
     filename=""
-    filename=paste("./",files[i],sep="")
+    filename=paste("./organisms/",files[i],sep="")
     conn=file(filename,open="r")
     data<-readLines(conn)
     
@@ -58,7 +58,7 @@ annotGeneLoc<-list()
 for(i in 1:length(files)){
   if(tools::file_ext(files[i]) == "txt"){
     filename=""
-    filename=paste("./",files[i],sep="")
+    filename=paste("./organisms/",files[i],sep="")
     conn=file(filename,open="r")
     data<-readLines(conn)
     
