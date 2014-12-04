@@ -20,7 +20,7 @@ addResourcePath('highcharts','www/highcharts/')
 #aggTable$modIncProb = aggTable$numIterations/100
 #aggTable <- aggTable[order(aggTable$chr,aggTable$bp),]
 
-
+#Add organisms from files instead of hardcoded arrays
 files<-list.files(path="./organisms/")
 chrSize<-list()
 for(i in 1:length(files)){
@@ -53,7 +53,7 @@ for(i in 1:length(files)){
 #}
 #aggTable$totalBP<-aggTable$bp+adjust
 
-
+#Add organisms from files instead of hardcoded arrays
 annotGeneLoc<-list()
 for(i in 1:length(files)){
   if(tools::file_ext(files[i]) == "txt"){
