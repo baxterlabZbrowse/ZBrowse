@@ -49,8 +49,8 @@ Browser Usage
 	Once you've selected your data in the manage tab, you can view the browser plot and select your 
 	combinations of traits from the boxes on the left. The genome view tab provides an overview of 
 	significant SNPs across the genome. Clicking any point will switch the view to the chromosome tab. 
-	The chromosome tab provides a look at just the chromosome you clicked as well as a zoomed in look at 
-	the region directly surrounding your SNP of interest. The maximum number of data-points that can be 
-	viewed for a single trait is 5000. If you attempt to plot more than this number the software will 
+	The chromosome tab provides a look at just the chromosome you clicked as well as a zoomed in look 
+	at the region directly surrounding your SNP of interest. The maximum number of data-points that can 
+	be viewed for a single trait is 5000. If you attempt to plot more than this number the software will 
 	simply display an empty plot. Try narrowing down your dataset and re-uploading the file.
 
