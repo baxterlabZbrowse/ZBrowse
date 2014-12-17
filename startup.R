@@ -8,4 +8,4 @@ if(!is.element('rCharts', installed.packages()[,1])){
   install_github('rCharts', 'ramnathv')
 }
 
-shiny::runApp()
+shiny::runApp(launch.browser = TRUE)

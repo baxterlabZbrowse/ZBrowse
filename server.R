@@ -55,7 +55,12 @@ shinyServer(function(input, output, session) {
       conditionalPanel(condition = "input.datatabs == 'panel1' || input.datatabs == 'panel2' || $('li.active a').first().html()==='Chromosome View'",
          helpText(h5(p("Interactive Graphs for GWAS Data"))),
          wellPanel(
-            uiOutput("traitColBoxes")
+            uiOutput("traitColBoxes"),
+            uiOutput("overlaps"),
+            conditionalPanel(condition = "input.overlaps==true",
+                             uiOutput("overlapSize"),
+                             uiOutput("numOverlapTraits")
+                             )#end conditional for plotting only overlaps
          )
          #submitButton("Update View"),
 
@@ -125,7 +130,7 @@ shinyServer(function(input, output, session) {
     winHigh <- centerBP+input$window[1]
     winLow <- centerBP-input$window[1]
     if(winLow < 0){winLow <- 0}    
-    thisChrAnnot <- subset(annotGeneLoc[input$organism][[1]],chromosome==input$chr)
+    thisChrAnnot <- subset(annotGeneLoc[input$organism][[1]],chromosome==input$chr)    
     thisAnnot <- thisChrAnnot[thisChrAnnot$transcript_start >= winLow & thisChrAnnot$transcript_end <= winHigh,]    
     thisAnnot  
   })
@@ -478,6 +483,24 @@ shinyServer(function(input, output, session) {
                   multiple=TRUE, options = list(dropdownParent="body"))
     })
   })
+  
+  #checkbox for whether to filter for only overlapping SNPs
+  output$overlaps <- renderUI({
+    if(is.null(input$datasets)){return()}
+#    if(input$plotAll == TRUE){return()}
+    checkboxInput('overlaps', 'Show only overlapping SNPs', FALSE)
+  })  
+  outputOptions(output, "overlaps", suspendWhenHidden=FALSE)
+
+  #how many traits must overlap to be included in output, 1 means traits that overlap with themselves will be included
+  output$numOverlapTraits <- renderUI({
+    numericInput("numOverlaps", "Minimum number of overlaps?", value=2,min=1)    
+  })
+
+  #how big is the window when calculating whether two snps overlap
+  output$overlapSize <- renderUI({
+    numericInput(inputId="overlapSize",label="Overlap size around each point:",min=1,max=.5e6,value=10000)
+  })
 
   output$selectChr <- renderUI({
     if(is.null(input$organism)){return()}
@@ -617,9 +640,9 @@ shinyServer(function(input, output, session) {
       }
     } #end SI total bp calculation
   })#end calculateTotalBP
-
+  
   output$pChart <- renderChart({
-    
+    #this function makes the chromsomeview chart  
     #subset whole chart based on selection
     chromChart <- values[[input$datasets]]
     chromChart <- chromChart[chromChart[,input$chrColumn]==input$chr,]
@@ -636,7 +659,7 @@ shinyServer(function(input, output, session) {
     }else{
       chromChart$trait <- input$datasets
     }
-    
+            
     #Separate Support Interval data from GWAS data, if support, GWAS data is assumed to be anything that has an NA in the SIbpStart column
     if(input$supportInterval == TRUE){
       SIchart <- chromChart[!(is.na(chromChart[,input$SIbpStart])),]
@@ -645,6 +668,12 @@ shinyServer(function(input, output, session) {
     #check if there is any data for the selected traits
     chromChart <- chromChart[!(is.na(chromChart[,input$bpColumn])),]
     chromChart <- chromChart[!(is.na(chromChart[,input$yAxisColumn])),]
+    
+    #if checked, filter for only overlapping SNPs
+    if(!is.null(input$overlaps) & input$overlaps == TRUE){
+      chromChart <- findGWASOverlaps(chromChart)
+    }            
+    
     if(nrow(chromChart)==0){ #nothing is in the window, but lets still make a data.frame
       chromChart <- values[[input$datasets]][1,]
       chromChart[,input$yAxisColumn] <- -1    
@@ -836,9 +865,15 @@ shinyServer(function(input, output, session) {
       genomeChart <- genomeChart[is.na(genomeChart[,input$SIbpStart]),]
     }
     
-    #filter genomeChart for only rows that have a base pair value
+    #filter genomeChart for only rows that have a base pair and yaxis value
     genomeChart <- genomeChart[!(is.na(genomeChart[,input$bpColumn])),]
     genomeChart <- genomeChart[!(is.na(genomeChart[,input$yAxisColumn])),]
+    
+    #if checked, filter for only overlapping SNPs
+    if(!is.null(input$overlaps) & input$overlaps == TRUE){
+      genomeChart <- findGWASOverlaps(genomeChart)
+    }
+    
     #check if there is any data for the selected traits
     if(nrow(genomeChart)==0){ #nothing is in the window, but lets still make a data.frame
        genomeChart <- values[[input$datasets]][1,]
@@ -1055,6 +1090,12 @@ shinyServer(function(input, output, session) {
     #filter for only rows that have a base pair value
     zoomChart <- zoomChart[!(is.na(zoomChart[,input$bpColumn])),]
     zoomChart <- zoomChart[!(is.na(zoomChart[,input$yAxisColumn])),]    
+    
+    #if checked, filter for only overlapping SNPs
+    if(!is.null(input$overlaps) & input$overlaps == TRUE){
+      zoomChart <- findGWASOverlaps(zoomChart)
+    }                    
+    
     if(nrow(zoomChart)==0){ #nothing is in the window, but lets still make a data.frame
       zoomChart <- values[[input$datasets]][1,]
       zoomChart[,input$yAxisColumn] <- -1    
@@ -1180,8 +1221,8 @@ shinyServer(function(input, output, session) {
     #thisChrAnnot <- subset(annotGeneLoc,chromosome==input$chr)
     thisChrAnnot <- subset(annotGeneLoc[input$organism][[1]],chromosome==input$chr)
     thisAnnot <- thisChrAnnot[thisChrAnnot$transcript_start >= winLow & thisChrAnnot$transcript_end <= winHigh,]
-    if(nrow(thisAnnot)==0){ #nothing is in the window, but lets still make a data.frame
-      thisAnnot <- thisChrAnnot[1,]
+    if(nrow(thisAnnot)==0){ #nothing is in the window, but lets still make a data.frame (actually make it big just to hopefully pick up one row from each strand...)
+      thisAnnot <- thisChrAnnot[1:100,]
     }        
     #    urlBase <- 'http://www.maizesequence.org/Zea_mays/Transcript/ProteinSummary?db=core;t='
     urlBase <- 'http://maizegdb.org/cgi-bin/displaygenemodelrecord.cgi?id='
@@ -1299,6 +1340,7 @@ shinyServer(function(input, output, session) {
                                                                                              stringsAsFactors=FALSE)})
     }
     #annotTable <- annotTable[,c("x","y","name","url","marker")]
+
     annotTable <- annotTable[,c("x","y","name","url")]
     annotTable <- annotTable[order(annotTable$x),]
 
@@ -1499,6 +1541,25 @@ shinyServer(function(input, output, session) {
      colorTable
    })
    
+  findGWASOverlaps <- function(genomeChart){  
+    if(is.null(input$overlapSize)){return(genomeChart[1,])}
+    tableIn <- genomeChart
+    tableIn$winStart <- tableIn[,input$bpColumn]-input$overlapSize
+    tableIn$winStop <- tableIn[,input$bpColumn]+input$overlapSize
+    
+    allGr <- GRanges(tableIn[,input$chrColumn], IRanges(start=tableIn$winStart,end=tableIn$winStop))
+
+    tableIn$group <- subjectHits(findOverlaps(allGr, reduce(allGr)))
+    
+    #just groups that have more than one unique SNP
+    gwasDataOverlap <- tableIn[tableIn$group %in% as.data.frame(table(tableIn$group))[as.data.frame(table(tableIn$group))$Freq>1,"Var1"],]
+    
+    #just groups that have more than one unique phenotype
+    gwasDataOverlapDiffPheno <- ddply(gwasDataOverlap,.(group),function(x){if(nrow(unique(as.data.frame(x[,"trait"])))>=input$numOverlaps){x}else{x[0,]}})
+
+    return(gwasDataOverlapDiffPheno)    
+  }
+
    observe({     
     if(is.null(input$SubmitColsButton) || input$SubmitColsButton == 0){return()}
     isolate({

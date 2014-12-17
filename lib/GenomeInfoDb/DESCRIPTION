@@ -1,0 +1,31 @@
+Package: GenomeInfoDb
+Title: Utilities for manipulating chromosome and other 'seqname'
+    identifiers
+Description: Contains data and functions that define and allow
+    translation between different chromosome sequence naming
+    conventions (e.g., "chr1" versus "1"), including a function that
+    attempts to place sequence names in their natural, rather than
+    lexicographic, order.
+Version: 1.2.3
+Author: Sonali Arora, Martin Morgan, Marc Carlson, H. Pages
+Maintainer: Bioconductor Package Maintainer
+    <maintainer@bioconductor.org>
+biocViews: Genetics, DataRepresentation, Annotation, GenomeAnnotation
+Depends: R (>= 3.1), methods, stats4, BiocGenerics, S4Vectors (>=
+    0.2.0), IRanges (>= 1.99.26)
+Imports: methods, BiocGenerics, S4Vectors
+Suggests: GenomicRanges, Rsamtools, GenomicAlignments, BSgenome,
+    GenomicFeatures, BSgenome.Scerevisiae.UCSC.sacCer2,
+    BSgenome.Celegans.UCSC.ce2, BSgenome.Hsapiens.NCBI.GRCh38,
+    TxDb.Dmelanogaster.UCSC.dm3.ensGene, RUnit, BiocStyle, knitr
+License: Artistic-2.0
+Collate: utils.R assembly-utils.R fetchExtendedChromInfoFromUCSC.R
+    rankSeqlevels.R seqinfo.R seqlevelsStyle.R seqlevels-wrappers.R
+    Seqinfo-class.R GenomeDescription-class.R
+VignetteBuilder: knitr
+Video: http://youtu.be/wdEjCYSXa7w
+Packaged: 2014-11-14 03:58:08 UTC; biocbuild
+Built: R 3.1.2; ; 2014-11-14 11:56:40 UTC; unix
+InstallAgent: packrat 0.4.1.1
+InstallSource: Bioconductor
+Hash: 9fb56ab8ee20e66bb6b7519ed6c0fcda

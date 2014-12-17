@@ -1,3 +1,7 @@
+#Load GenomicRange packages locally, order here matters
+pkgs <- c("BiocGenerics","S4Vectors","IRanges","XVector","GenomeInfoDb","GenomicRanges")
+for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE,lib.loc="./lib/"))
+
 library(shiny)
 library(plyr)
 library(rCharts)

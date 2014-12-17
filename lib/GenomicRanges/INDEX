@@ -1,0 +1,33 @@
+Constraints             Enforcing constraints thru Constraint objects
+GIntervalTree-class     GIntervalTree objects
+GRanges-class           GRanges objects
+GRangesList-class       GRangesList objects
+GRangesMapping-class    GRangesMapping objects
+GenomicRanges-comparison
+                        Comparing and ordering genomic ranges
+GenomicRanges-deprecated
+                        Deprecated Functions in package 'GenomicRanges'
+GenomicRangesList-class
+                        GenomicRangesList objects
+SummarizedExperiment-class
+                        SummarizedExperiment instances
+coverage-methods        Coverage of a GRanges or GRangesList object
+findOverlaps-methods    Finding overlapping genomic ranges
+inter-range-methods     Inter range transformations of a GenomicRanges
+                        or GRangesList object
+intra-range-methods     Intra range transformations of a GRanges or
+                        GRangesList object
+makeGRangesFromDataFrame
+                        Make a GRanges object from a data.frame or
+                        DataFrame
+map-methods             Mapping ranges between sequences
+mapCoords-methods       Mapping ranges between sequences
+nearest-methods         Finding the nearest genomic range neighbor
+phicoef                 Calculate the "phi coefficient" between two
+                        binary variables
+range-squeezers         Squeeze the ranges out of a range-based object
+setops-methods          Set operations on GRanges and GRangesList
+                        objects
+strand-utils            Strand utilities
+tile-methods            Tile a GenomicRanges object
+tileGenome              Put (virtual) tiles on a given genome
