@@ -26,7 +26,7 @@
 
 #####Prepare GWAS dataset
 
-Your GWAS dataset is likely already in a comma-separated format. If not, open your dataset in spreadsheet software such as Excel and save as csv. `Zbrowse` is designed for plotting the most significant hits from a GWAS experiment and is therefore limited to plotting less than 5000 markers for a single trait. Most GWAS results files contain results from every marker, so it may be necessary to filter out the non-significant traits before uploading to the browser.
+Your GWAS dataset is likely already in a comma-separated format. If not, open your dataset in spreadsheet software such as Excel and save as csv. `Zbrowse` is designed for plotting the most significant hits from a GWAS experiment and is therefore limited to plotting less than 5000 markers for a single trait. Most GWAS results files contain results from every marker, so it may be necessary to filter the non-significant markers before uploading to the browser.
 
 #####Load into browser
 
