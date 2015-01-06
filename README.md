@@ -1,6 +1,6 @@
 #Zbrowse
 
-`Zbrowse` is an interactive GWAS results viewer designed with an emphasis on comparing GWAS results from multiple phenotypic datasets. 
+`Zbrowse` is an interactive GWAS viewer focused on comparing results across traits and other variables. 
 
 ### Requirements
 
@@ -10,24 +10,27 @@
 ### Download and Install
 
 1. Navigate to http://www.baxterlab.org/	
-
 2. Click "Download ZBrowse".
+  - This will download a zipped file to your computer. 
 
-- This will download a zipped file to your computer. 
 3. Unzip the file and open `interactiveGWASuploadable.Rproj`
+  - This will open the project in R Studio.
 
-- This will open the project in R Studio.
 4. At the R command prompt enter:
 `source("startup.R")`
-
-- This will check for and install any necessary libraries and open `ZBrowse` in your default browser.
+  - This will check for and install any necessary libraries and open `ZBrowse` in your default browser.
 
 ###Using the Browser
 
 ####Load data
-The best way to get data in and out of the GWAS browser (and R) is to use the R-data format (.rda). These are binary files that can be stored compactly and that can be read into R quickly. Choose the .rda radio button and click 'Choose file' to locate the file you want to load on your computer.
 
-Loading data from Excel can be achieved in two ways. First, you can save data from excel to a csv format and then choose the .csv radio button. Most likely you will have a header row in the csv file for variable names. If the data are not comma separated you can choose a semicolon or tab separated format. Then click 'Choose file' and locate the csv file you created in Excel on your computer.
+#####Prepare GWAS dataset
+
+Your GWAS dataset is likely already in a comma-separated format. If not, open your dataset in spreadsheet software such as Excel and save as csv. `Zbrowse` is designed for plotting the most significant hits from a GWAS experiment and is therefore limited to plotting less than 5000 markers for a single trait. Most GWAS results files contain results from every marker, so it may be necessary to filter the non-significant markers before uploading to the browser.
+
+#####Load into browser
+
+In the browser, select the '.csv' radio button. Most likely you have a header row in the csv file for variable names, if not, deselect the 'Header' check box. If the data are not comma separated you can also choose a semicolon or tab separated format. Then click 'Choose file' and locate the csv file on your computer.
 
 ####Select Appropriate Columns
 
