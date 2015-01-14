@@ -480,7 +480,7 @@ shinyServer(function(input, output, session) {
       traits <- sort(unique(values[[input$datasets]][,i]))
       selectizeInput(inputId=i, label=paste0("Select ",i),traits,
                   selected=traits[1],
-                  multiple=TRUE, options = list(dropdownParent="body"))
+                  multiple=TRUE, options = list(dropdownParent="body",plugins=list("remove_button")))
     })
   })
   

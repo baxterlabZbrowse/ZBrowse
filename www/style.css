@@ -130,3 +130,35 @@ input[type="number"] {
 #fac_condFormat { 
   vertical-align: middle; 
 }
+
+.selectize-dropdown {
+  position: absolute;
+
+  max-width: 800px !important;      /* autosize dropwdown to content but keep it from getting too out of hand*/
+  width: auto !important;				
+  white-space:nowrap !important;
+  overflow-y:visible !important;
+  overflow-x:visible !important;
+
+  z-index: 10;
+  margin: 0 0 0 0;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-top: 1px solid #ccc;		
+  -webkit-border-radius: 0 0 2px 2px;
+     -moz-border-radius: 0 0 2px 2px;
+          border-radius: 0 0 2px 2px;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+/*Make overflowing text cutoff in the box and put an ellipsis to indicate it overflowed*/
+.selectize-input .item {
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  overflow:hidden;
+  max-width:90%;
+}
