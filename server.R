@@ -504,7 +504,8 @@ shinyServer(function(input, output, session) {
 
   output$selectChr <- renderUI({
     if(is.null(input$organism)){return()}
-    selectInput("chr", "Chromosome:",1:length(chrSize[input$organism][[1]]),selectize = FALSE)
+    selectInput("chr", "Chromosome:",chrName[input$organism][[1]],selectize = FALSE)
+    #selectInput("chr", "Chromosome:",1:length(chrSize[input$organism][[1]]),selectize = FALSE)
   })
   outputOptions(output, "selectChr", suspendWhenHidden=FALSE)
   
@@ -595,13 +596,16 @@ shinyServer(function(input, output, session) {
 #         }
 #       })     
       cumBP<-c(0,cumsum(as.numeric(chrSize[input$organism][[1]])))
+      #to order by desired chromosome add factor levels in the desired order to the chrColumn, any chr names that differ in gwas file compared
+      #to organism file will turn into NA
+      values[[input$datasets]][,input$chrColumn] <- factor(values[[input$datasets]][,input$chrColumn],levels=chrName[input$organism][[1]])
       values[[input$datasets]] <- values[[input$datasets]][order(values[[input$datasets]][,input$chrColumn],values[[input$datasets]][,input$bpColumn]),]
       numeachchr<-aggregate(values[[input$datasets]][,input$bpColumn],list(values[[input$datasets]][,input$chrColumn]),length)
 #      adjust<-rep(cumBP[1],numeachchr$x[numeachchr$Group.1==1])            
       adjust <- numeric()
       for (i in 1:(length(cumBP)-1)){#max(unique(values[[input$datasets]][,input$chrColumn]))){
-        if(length(numeachchr$x[numeachchr$Group.1==i])==0){next;}
-        adjust<-c(adjust,rep(cumBP[i],numeachchr$x[numeachchr$Group.1==i]))
+        if(length(numeachchr$x[numeachchr$Group.1==chrName[input$organism][[1]][i]])==0){next;}
+        adjust<-c(adjust,rep(cumBP[i],numeachchr$x[numeachchr$Group.1==chrName[input$organism][[1]][i]]))
       }
       #newval <- values[[input$datasets]][600,input$bpColumn]+adjust[600]      
       values[[input$datasets]]$totalBP <- values[[input$datasets]][,input$bpColumn]+adjust
@@ -614,12 +618,13 @@ shinyServer(function(input, output, session) {
       }else{
          
         cumBP<-c(0,cumsum(as.numeric(chrSize[input$organism][[1]])))
+        values[[input$datasets]][,input$chrColumn] <- factor(values[[input$datasets]][,input$chrColumn],levels=chrName[input$organism][[1]])
         values[[input$datasets]] <- values[[input$datasets]][order(values[[input$datasets]][,input$chrColumn],values[[input$datasets]][,input$SIbpStart]),]
         numeachchr<-aggregate(values[[input$datasets]][,input$SIbpStart],list(values[[input$datasets]][,input$chrColumn]),length)
         adjust <- numeric()
         for (i in 1:(length(cumBP)-1)){#max(unique(values[[input$datasets]][,input$chrColumn]))){
-          if(length(numeachchr$x[numeachchr$Group.1==i])==0){next;}
-          adjust<-c(adjust,rep(cumBP[i],numeachchr$x[numeachchr$Group.1==i]))
+          if(length(numeachchr$x[numeachchr$Group.1==chrName[input$organism][[1]][i]])==0){next;}
+          adjust<-c(adjust,rep(cumBP[i],numeachchr$x[numeachchr$Group.1==chrName[input$organism][[1]][i]]))
         }
         values[[input$datasets]]$SIbpStartTotal <- values[[input$datasets]][,input$SIbpStart]+adjust    
       }
@@ -629,12 +634,13 @@ shinyServer(function(input, output, session) {
       }else{
         
         cumBP<-c(0,cumsum(as.numeric(chrSize[input$organism][[1]])))
+        values[[input$datasets]][,input$chrColumn] <- factor(values[[input$datasets]][,input$chrColumn],levels=chrName[input$organism][[1]])
         values[[input$datasets]] <- values[[input$datasets]][order(values[[input$datasets]][,input$chrColumn],values[[input$datasets]][,input$SIbpEnd]),]
         numeachchr<-aggregate(values[[input$datasets]][,input$SIbpEnd],list(values[[input$datasets]][,input$chrColumn]),length)
         adjust <- numeric()
         for (i in 1:(length(cumBP)-1)){#max(unique(values[[input$datasets]][,input$chrColumn]))){
-          if(length(numeachchr$x[numeachchr$Group.1==i])==0){next;}
-          adjust<-c(adjust,rep(cumBP[i],numeachchr$x[numeachchr$Group.1==i]))
+          if(length(numeachchr$x[numeachchr$Group.1==chrName[input$organism][[1]][i]])==0){next;}
+          adjust<-c(adjust,rep(cumBP[i],numeachchr$x[numeachchr$Group.1==chrName[input$organism][[1]][i]]))
         }
         values[[input$datasets]]$SIbpEndTotal <- values[[input$datasets]][,input$SIbpEnd]+adjust    
       }
@@ -812,6 +818,7 @@ shinyServer(function(input, output, session) {
       ),
       line = list(
         lineWidth = 10,
+        dashStyle = 'Solid',
         cursor = "pointer",
 #        stickyTracking=FALSE,
         point = list(
@@ -833,7 +840,7 @@ shinyServer(function(input, output, session) {
     )
     #a$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")
     #a$tooltip(snap = 5, useHTML = T, formatter = "#! function() { return this.point.name; } !#")
-    a$exporting(enabled=TRUE)
+    a$exporting(enabled=TRUE,filename='chromChart',sourceWidth=2000)
     a$set(dom = 'pChart')
     return(a)
     
@@ -944,9 +951,9 @@ shinyServer(function(input, output, session) {
     cumBP<-c(0,cumsum(as.numeric(chrSize[input$organism][[1]])))
     for(i in 1:(length(cumBP)-1)){
       if(i %% 2 == 0 ){ #even
-        bigList[[length(bigList)+1]] <- list(from=cumBP[i]+1,to=cumBP[i+1],label=list(text=i,style=list(color="#6D869F"),verticalAlign="bottom"))
+        bigList[[length(bigList)+1]] <- list(from=cumBP[i]+1,to=cumBP[i+1],label=list(text=chrName[input$organism][[1]][i],style=list(color="#6D869F"),verticalAlign="bottom"))
       }else{ #odd
-        bigList[[length(bigList)+1]] <- list(from=cumBP[i]+1,to=cumBP[i+1],color='rgba(68, 170, 213, 0.1)',label=list(text=i,style=list(color="#6D869F"),verticalAlign="bottom"))
+        bigList[[length(bigList)+1]] <- list(from=cumBP[i]+1,to=cumBP[i+1],color='rgba(68, 170, 213, 0.1)',label=list(text=chrName[input$organism][[1]][i],style=list(color="#6D869F"),verticalAlign="bottom"))
       }
     }    
     
@@ -974,6 +981,8 @@ shinyServer(function(input, output, session) {
              data = toJSONArray2(x,json=F,names=T),
              type = "line",
              name = unique(x$trait),
+             dashStyle = 'Solid',
+             marker = list(enabled=F),
              yAxis=1,           
              color = colorTable$color[colorTable$trait == as.character(unique(x$loc_el))])})            
        }
@@ -1034,13 +1043,14 @@ shinyServer(function(input, output, session) {
                                     $('.tab-content div').trigger('change');$('ul#datatabs li').trigger('change');} !#")),             
           marker = list(
             enabled = FALSE,
-            states = list(hover = list(enabled=FALSE))
+            states = list(hover = list(enabled=FALSE)),
+            symbol = "square"
           )
         )            
       )#end plotOptions        
      #c$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")
      #c$tooltip(formatter = "#! function() { return this.point.name; } !#")
-     c$exporting(enabled=TRUE)
+     c$exporting(enabled=TRUE,filename='genomeChart',sourceWidth=2000)
      #c$legend(enabled=FALSE)
      c$credits(enabled=TRUE)
      c$set(dom = 'gChart')     
@@ -1228,7 +1238,7 @@ shinyServer(function(input, output, session) {
     urlBase <- 'http://maizegdb.org/cgi-bin/displaygenemodelrecord.cgi?id='
     soyurlBase <- 'http://www.soybase.org/sbt/search/search_results.php?category=FeatureName&search_term='
     araburlBase <- 'http://arabidopsis.org/servlets/TairObject?type=locus&name='
-    sorgurlBase <- 'http://phytozome.jgi.doe.gov/pz/portal.html#!gene?search=1&detail=1&method=3451&searchText=transcriptid:'
+    sorgurlBase <- 'http://phytozome.jgi.doe.gov/pz/portal.html#!gene?search=1&detail=1&searchText=transcriptid:'
 
     annotYvalReverse <- 0.01    
     #if(input$axisLimBool == TRUE){annotYvalReverse <- input$axisMin+0.01}
@@ -1310,9 +1320,9 @@ shinyServer(function(input, output, session) {
                                                                                      stringsAsFactors=FALSE)})
     }else{#} if(input$organism == "Sorghum"){#strand is '+' or '-'
       annotTable <- adply(thisAnnot[thisAnnot$strand=="+",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalForward,annotYvalForward,NA),url=paste0(sorgurlBase,x$ID),
-                                                                                      name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s:%2$s</th></tr><tr><td align='left'>Location: %3$s-%4$s<br>Chromosome: %5$s, Strand: %6$s<br>Desc: %7$s<br>Top TAIR Hit: %8$s<br>Top Rice Hit: %9$s</td></tr></table>",
+                                                                                      name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Desc: %6$s<br>Top TAIR Hit: %7$s<br>Top Rice Hit: %8$s</td></tr></table>",
                                                                                                    x$name,
-                                                                                                   x$V2.1,
+                                                                                                   #1,#x$V2.1,
                                                                                                    prettyNum(x$transcript_start, big.mark = ","),
                                                                                                    prettyNum(x$transcript_end, big.mark = ","),
                                                                                                    x$chromosome,                                                                           
@@ -1325,9 +1335,9 @@ shinyServer(function(input, output, session) {
                                                                                       stringsAsFactors=FALSE)})   
       
       annotTableReverse <- adply(thisAnnot[thisAnnot$strand=="-",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalReverse,annotYvalReverse,NA),url=paste0(sorgurlBase,x$ID),
-                                                                                             name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s:%2$s</th></tr><tr><td align='left'>Location: %3$s-%4$s<br>Chromosome: %5$s, Strand: %6$s<br>Desc: %7$s<br>Top TAIR Hit: %8$s<br>Top Rice Hit: %9$s</td></tr></table>",
+                                                                                             name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Desc: %6$s<br>Top TAIR Hit: %7$s<br>Top Rice Hit: %8$s</td></tr></table>",
                                                                                                           x$name,
-                                                                                                          x$V2.1,
+                                                                                                          #1,#x$V2.1,
                                                                                                           prettyNum(x$transcript_start, big.mark = ","),
                                                                                                           prettyNum(x$transcript_end, big.mark = ","),
                                                                                                           x$chromosome,                                                                           
@@ -1404,6 +1414,8 @@ shinyServer(function(input, output, session) {
           b$series(
             data = toJSONArray2(x,json=F,names=T),
             type = "line",
+            dashStyle = 'Solid',
+            lineWidth = 10,
             name = unique(x$trait),
             yAxis=2,           
             color = colorTable$color[colorTable$trait == as.character(unique(x$loc_el))])})            

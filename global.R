@@ -24,9 +24,17 @@ addResourcePath('highcharts','www/highcharts/')
 #aggTable$modIncProb = aggTable$numIterations/100
 #aggTable <- aggTable[order(aggTable$chr,aggTable$bp),]
 
+
+#find the non-numeric values in a vector
+which.nonnum <- function(x) {
+  badNum <- is.na(suppressWarnings(as.numeric(as.character(x))))
+  which(badNum & !is.na(x))
+}
+
 #Add organisms from files instead of hardcoded arrays
 files<-list.files(path="./organisms/")
 chrSize<-list()
+chrName<-list()
 for(i in 1:length(files)){
   if(tools::file_ext(files[i]) == "txt"){
     filename=""
@@ -35,9 +43,28 @@ for(i in 1:length(files)){
     data<-readLines(conn)
     
     key<-data[1]
-    value<-c(lapply(strsplit(data[2], ","), as.numeric))
-    chrSize[key]<-value
-    
+    #added ability to specify chrom names in organisms file by separating with a :, otherwise it just assumes they are alphanumerically sorted    
+    if(length(grep(":",data[2]))){
+      features <- strsplit(data[2], ",")[[1]]
+      names <- read.table(text=features,sep=":",stringsAsFactors = FALSE) #this will die if any names are missing
+      #order so that numeric come first in order, then named chrs
+      if(length(which.nonnum(names$V1))>0){
+        numNames <- names[-which.nonnum(names$V1),]
+      }else{
+        numNames <- names
+      }
+      numNames <- numNames[order(as.numeric(numNames$V1)),]
+      nonNumNames <- names[which.nonnum(names$V1),]
+      nonNumNames <- nonNumNames[order(nonNumNames$V1),]
+      namesOrdered <- rbind(numNames,nonNumNames)
+      value <- namesOrdered$V2
+      name <- namesOrdered$V1
+    }else{
+      value<-unlist(c(lapply(strsplit(data[2], ","), as.numeric)))
+      name <- c(1:length(value))
+    }    
+    chrSize[key]<-list(value)
+    chrName[key]<-list(name)
     close(conn)
   }
 }
