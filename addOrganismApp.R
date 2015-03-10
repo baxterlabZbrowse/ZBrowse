@@ -6,7 +6,7 @@ library(shiny)
 #######Fill in path to organism here, then highlight everything and run#########
 #phytoPath <- args[1]
 #phytoPath <- "~/Downloads/PhytozomeV10 2/Bdistachyon/"
-phytoPath <- "~/Downloads/Athaliana/TAIR10/"
+phytoPath <- "~/Downloads/Sitalica/v2.1/"
 
 
 ###Function for easily reading the gff file
@@ -38,6 +38,7 @@ addOrganism <- function(phytoPath) {
   #capture text between underscore and .annotation, otherwise this will return the unedited string
   annotFileList <- list.files(paste0(phytoPath,"/annotation/"))
   annotFileLoc <- grep("annotation_info",annotFileList,value=TRUE)
+  if(length(annotFileLoc)>1){stop(paste("Ambiguous file names found for gene annotations info: ",paste(annotFileLoc,collapse = " "),"\nPlease delete one and rerun."))}
   defFileLoc <- grep("defline",annotFileList,value=TRUE)
   orgVersion <- gsub(".*_(.*?)\\.annotation.*","\\1", annotFileLoc)
   #orgName <- strsplit(phytoPath,"/")[[1]][length(strsplit(phytoPath,"/")[[1]])]
@@ -53,6 +54,7 @@ addOrganism <- function(phytoPath) {
   
   #pull in information about where each Gene falls  
   geneLocFile <- grep(".gene.gff3",annotFileList,value=TRUE)
+  if(length(geneLocFile)>1){stop(paste("Ambiguous file names found for gene annotations file: ",paste(geneLocFile,collapse = " "),"\nPlease delete one and rerun."))}
   geneLoc <- gffRead(gzfile(paste0(phytoPath,"/annotation/",geneLocFile)))
   geneLoc <- geneLoc[geneLoc$feature=="gene",]
   
