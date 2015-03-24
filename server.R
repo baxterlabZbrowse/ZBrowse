@@ -571,7 +571,7 @@ shinyServer(function(input, output, session) {
       values[[objname]] <- as.data.frame(as.data.set(spss.system.file(uFile)))
     } else if(ext == 'dta') {
       values[[objname]] <- read.dta(uFile)
-    } else if(ext == 'csv') {
+    } else{
       values[[objname]] <- read.csv(uFile, header=input$header, sep=input$sep,stringsAsFactors=FALSE)
     }
   }
