@@ -1,6 +1,14 @@
 #Load GenomicRange packages locally, order here matters
 pkgs <- c("BiocGenerics","S4Vectors","IRanges","XVector","GenomeInfoDb","GenomicRanges")
-for(p in pkgs) suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE,lib.loc="./lib/"))
+source("http://bioconductor.org/biocLite.R")
+
+for(p in pkgs){
+  if(system.file(package=p) == ""){
+    biocLite(p)
+  }  
+  suppressPackageStartupMessages(library(p, quietly=TRUE, character.only=TRUE))
+}
+  
 
 library(shiny)
 library(plyr)
