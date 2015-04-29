@@ -161,7 +161,12 @@ shinyServer(function(input, output, session) {
     dat <- getdata()
     if(is.null(dat)) return()
     nr <- nrow(dat)
-    paste0('<p>First 10 rows shown of ',nr,' rows. See Data Table tab for details.</p>')
+    
+    if(nr>2500){
+      paste0('<p>First 10 rows shown of ',nr,' rows. See Data Table tab for details.<br>More than 2500 rows found, only the top 2500 will be plotted.</p>')
+    }else{
+      paste0('<p>First 10 rows shown of ',nr,' rows. See Data Table tab for details.</p>')
+    }
   })
   output$ui_data_tabs <- renderUI({   # htmlOutput("htmlDataExample")})
     tabsetPanel(id = "datatabs",      
@@ -181,7 +186,7 @@ shinyServer(function(input, output, session) {
                    #col(2, tags$br()),
                    col(2,uiOutput("chrColumn"),uiOutput("bpColumn")),
                    col(2,uiOutput("plotAll"),uiOutput("traitColumns")),
-                   col(2,uiOutput("yAxisColumn")),
+                   col(2,uiOutput("yAxisColumn"),uiOutput("logP")),
                    col(2,uiOutput("axisLimBool"),uiOutput("axisLim")),
                    col(2,actionButton("SubmitColsButton","Submit"))
                 ),
@@ -308,6 +313,15 @@ shinyServer(function(input, output, session) {
     checkboxInput('axisLimBool', 'Set Y-axis Limits?', val)
   })
   
+  output$logP <- renderUI({
+    if(is.null(input$datasets)){return()}
+    if(input$datasets %in% datasetProp()$dataset){
+      val = datasetProp()$logP[datasetProp()$dataset == input$datasets]
+    }else{
+      val = FALSE}
+    checkboxInput('logP', 'Take -log10 of column?', val)
+  })
+
   output$organism <- renderUI({
     if(is.null(input$datasets)){return()}
     cols <- varnames()
@@ -691,6 +705,16 @@ shinyServer(function(input, output, session) {
     }    
     colorTable <- colorTable() 
     
+    #take -log10 of y-axis column if requested
+    if(input$logP == TRUE && chromChart[1,input$yAxisColumn] != -1){
+      chromChart[,input$yAxisColumn] <- -log(chromChart[,input$yAxisColumn],10)
+    }        
+    
+    #check if there is too much data (>2500 data points), trim to 2500
+    if(nrow(chromChart)>2500){
+      cutVal <- sort(chromChart[,input$yAxisColumn],decreasing = T)[2500]
+      chromChart <- chromChart[chromChart[,input$yAxisColumn] >= cutVal,]
+    }        
     
     #calculate window for plotband
     pbWin <- isolate({
@@ -891,7 +915,18 @@ shinyServer(function(input, output, session) {
          genomeChart$trait <- genomeChart[,input$traitColumns]
        }             
     }
-        
+    
+    #take -log10 of y-axis column if requested
+    if(input$logP == TRUE && genomeChart[1,input$yAxisColumn] != -1){
+      genomeChart[,input$yAxisColumn] <- -log(genomeChart[,input$yAxisColumn],10)
+    }
+    
+    #check if there is too much data (>2500 data points), trim to 2500
+    if(nrow(genomeChart)>2500){
+      cutVal <- sort(genomeChart[,input$yAxisColumn],decreasing = T)[2500]
+      genomeChart <- genomeChart[genomeChart[,input$yAxisColumn] >= cutVal,]
+    }
+    
     colorTable <- colorTable()
      genomeTable <- data.frame(x=genomeChart$totalBP,y=genomeChart[,input$yAxisColumn],trait=genomeChart$trait,
 #                               name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>RMIP: %2$s<br>Location: %3$s<br>Base Pairs: %4$s<br>SNP: %5$s<br>Chromosome: %6$s</td></tr></table>",
@@ -1116,6 +1151,17 @@ shinyServer(function(input, output, session) {
       }                   
     }
     colorTable <- colorTable() 
+
+    #take -log10 of y-axis column if requested
+    if(input$logP == TRUE && zoomChart[1,input$yAxisColumn] != -1){
+      zoomChart[,input$yAxisColumn] <- -log(zoomChart[,input$yAxisColumn],10)
+    }                
+    
+    #check if there is too much data (>2500 data points), trim to 2500
+    if(nrow(zoomChart)>2500){
+      cutVal <- sort(zoomChart[,input$yAxisColumn],decreasing = T)[2500]
+      zoomChart <- zoomChart[zoomChart[,input$yAxisColumn] >= cutVal,]
+    }                
     
     zoomTable <- data.frame(x=zoomChart[,input$bpColumn],y=zoomChart[,input$yAxisColumn],trait=zoomChart$trait,
 #                                         name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>RMIP: %2$s<br>Location: %3$s<br>Base Pairs: %4$s<br>SNP: %5$s<br>Chromosome: %6$s</td></tr></table>",
@@ -1589,7 +1635,7 @@ shinyServer(function(input, output, session) {
       #                 traitCol=paste(names(cols[cols %in% input$traitColumns]),collapse=";"),yAxisColumn=names(cols[cols==input$yAxisColumn]),axisLim=input$axisLimBool,axisMin=input$axisMin,axisMax=input$axisMax,stringsAsFactors=FALSE))
       currDatasetProp <-  rbind(currDatasetProp,data.frame(dataset=input$datasets,chrColumn=names(cols[cols==input$chrColumn]),bpColumn=names(cols[cols==input$bpColumn]),
                                                   traitCol=paste(names(cols[cols %in% input$traitColumns]),collapse=";"),yAxisColumn=names(cols[cols==input$yAxisColumn]),
-                                                  axisLim=input$axisLimBool,axisMin=input$axisMin,axisMax=input$axisMax,organism=input$organism,plotAll=input$plotAll,
+                                                  logP=input$logP,axisLim=input$axisLimBool,axisMin=input$axisMin,axisMax=input$axisMax,organism=input$organism,plotAll=input$plotAll,
                                                   supportInterval=input$supportInterval,SIyAxisColumn=input$SIyAxisColumn,SIbpStart=input$SIbpStart,SIbpEnd=input$SIbpEnd,
                                                   SIaxisLimBool=input$SIaxisLimBool,SIaxisMin=input$SIaxisMin,SIaxisMax=input$SIaxisMax,stringsAsFactors=FALSE))      
       #print("rbind")
