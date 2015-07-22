@@ -33,8 +33,7 @@ shinyServer(function(input, output, session) {
            )
          ),
          wellPanel(
-           h6("Save uploaded data to the server. It will become accessible to everyone with access to the browser."),
-           h6("Once saved, it can only be deleted by an administrator."),
+            h6("Once your file is finished uploading, press the Save Dataset button below and reload Zbrowse."),
            actionButton('saveDatasetButton', 'Save Current Dataset'),
            conditionalPanel(condition = "input.saveDatasetButton > 0",
                             h5("Dataset successfully saved!")
