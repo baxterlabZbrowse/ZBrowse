@@ -7,7 +7,8 @@ shinyUI(pageWithSidebar(
 #      uiOutput("datasets")
 #    ),
     #uiOutput("ui_Manage")
-    uiOutput("ui_All")
+    uiOutput("ui_All"),
+    width=2
   ),
   mainPanel(
     tagList( # The four core files: 3 JS files and 1 CSS file --
@@ -19,7 +20,8 @@ shinyUI(pageWithSidebar(
       #singleton(tags$head(tags$script(src='http://code.highcharts.com/highcharts.js',type='text/javascript')))
     ),    
     #progressInit(),    
-    uiOutput("ui_data_tabs")
+    uiOutput("ui_data_tabs"),
+    width=10
     #tableOutput('contents')
   )
 ))

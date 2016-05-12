@@ -102,7 +102,7 @@ for(i in 1:length(files)){
     data<-readLines(conn)
     
     key<-data[1]
-    locValue<-read.table(data[3],sep=",",head=TRUE,stringsAsFactors = FALSE)
+    locValue<-read.table(data[3],sep=",",head=TRUE,stringsAsFactors = FALSE,quote = c("\""))
     annotGeneLoc[key]<-list(locValue)
     
     close(conn)

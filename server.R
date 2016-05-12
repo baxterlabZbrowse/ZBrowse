@@ -55,6 +55,7 @@ shinyServer(function(input, output, session) {
          helpText(h5(p("Interactive Graphs for GWAS Data"))),
          wellPanel(
             uiOutput("traitColBoxes"),
+            uiOutput("legend"),
             uiOutput("overlaps"),
             conditionalPanel(condition = "input.overlaps==true",
                              uiOutput("overlapSize"),
@@ -490,12 +491,28 @@ shinyServer(function(input, output, session) {
   output$traitColBoxes <- renderUI({
     if(input$plotAll == TRUE){return()}
     lapply(input$traitColumns, function(i) {      
-      traits <- sort(unique(values[[input$datasets]][,i]))
+      traits <- c("Select All",sort(unique(values[[input$datasets]][,i])))
       selectizeInput(inputId=i, label=paste0("Select ",i),traits,
-                  selected=traits[1],
+                  selected=traits[2],
                   multiple=TRUE, options = list(dropdownParent="body",plugins=list("remove_button")))
     })
   })
+  
+  observe({
+    lapply(input$traitColumns, function(i){
+      if("Select All" %in% input[[i]]){
+        selected_choices <- sort(unique(values[[input$datasets]][,i]))
+        updateSelectizeInput(session, i, selected = selected_choices)
+      }
+    })
+  })
+  
+  #checkbox to suppress plot legend
+  output$legend <- renderUI({
+    if(is.null(input$datasets)){return()}
+    checkboxInput('legend', 'Suppress Legend', FALSE)
+  })
+  outputOptions(output, "legend", suspendWhenHidden=FALSE)
   
   #checkbox for whether to filter for only overlapping SNPs
   output$overlaps <- renderUI({
@@ -757,7 +774,7 @@ shinyServer(function(input, output, session) {
       }
       SIchart$loc_el <- SIchart$trait
       SIchart$trait <- paste(SIchart$trait,"Int",sep="_")
-      
+      SIchart <- SIchart[order(SIchart[[input$SIbpStart]]),]
       jlTable <- adply(SIchart,1,function(x) {data.frame(x=c(x[[input$SIbpStart]],x[[input$SIbpEnd]],x[[input$SIbpEnd]]),y=c(x[[input$SIyAxisColumn]],x[[input$SIyAxisColumn]],NA),trait=x$trait,
                                                          name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><td align='left'>Interval: %1$s-%2$s<br>Chromosome: %3$s</td></tr></table>",
 #                                                                      x$trait,
@@ -772,7 +789,7 @@ shinyServer(function(input, output, session) {
       )}#end jlTable and function
       )#end adply
       jlTable <- jlTable[,c("x","y","trait","name","loc_el","bp","chr")]
-      jlTable <- jlTable[order(jlTable$x),]
+      #jlTable <- jlTable[order(jlTable$x),]
     }#end build jlTable if support intervals        
     
     a <- rCharts::Highcharts$new()
@@ -961,7 +978,7 @@ shinyServer(function(input, output, session) {
       }
       SIchart$loc_el <- SIchart$trait
       SIchart$trait <- paste(SIchart$trait,"Int",sep="_")
-  
+      SIchart <- SIchart[order(SIchart$SIbpStartTotal),]
        jlTable <- adply(SIchart,1,function(x) {data.frame(x=c(x$SIbpStartTotal,x$SIbpEndTotal,x$SIbpEndTotal),y=c(x[[input$SIyAxisColumn]],x[[input$SIyAxisColumn]],NA),trait=x$trait,
                                                     #name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Y-value: %2$.2f <br>Interval: %3$s-%4$s<br>Chromosome: %5$s</td></tr></table>",
                                                     name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><td align='left'>Interval: %1$s-%2$s<br>Chromosome: %3$s</td></tr></table>",
@@ -977,7 +994,7 @@ shinyServer(function(input, output, session) {
          )}#end jlTable and function
        )#end adply
        jlTable <- jlTable[,c("x","y","trait","name","loc_el","bp","chr")]
-       jlTable <- jlTable[order(jlTable$x),]
+       #jlTable <- jlTable[order(jlTable$x),]
     }#end build jlTable if support intervals
 
     #build list for where to put plotbands for this organism
@@ -1085,7 +1102,10 @@ shinyServer(function(input, output, session) {
      #c$tooltip(useHTML = T, formatter = "#! function() { return this.point.name; } !#")
      #c$tooltip(formatter = "#! function() { return this.point.name; } !#")
      c$exporting(enabled=TRUE,filename='genomeChart',sourceWidth=2000)
-     #c$legend(enabled=FALSE)
+     if(!is.null(input$legend) & input$legend == TRUE){
+       c$legend(enabled=FALSE)
+     }
+     
      c$credits(enabled=TRUE)
      c$set(dom = 'gChart')     
      return(c)
@@ -1227,6 +1247,7 @@ shinyServer(function(input, output, session) {
        }     
        SIchart$loc_el <- SIchart$trait
        SIchart$trait <- paste(SIchart$trait,"Int",sep="_")
+       SIchart <- SIchart[order(SIchart[[input$SIbpStart]]),]
        jlTable <- adply(SIchart,1,function(x) {data.frame(x=c(x[[input$SIbpStart]],x[[input$SIbpEnd]],x[[input$SIbpEnd]]),y=c(x[[input$SIyAxisColumn]],x[[input$SIyAxisColumn]],NA),trait=x$trait,
                                                           name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><td align='left'>Interval: %1$s-%2$s<br>Chromosome: %3$s</td></tr></table>",
                                                                        #                                                                      x$trait,
@@ -1241,7 +1262,7 @@ shinyServer(function(input, output, session) {
        )}#end jlTable and function
        )#end adply
        jlTable <- jlTable[,c("x","y","trait","name","loc_el","bp","chr")]
-       jlTable <- jlTable[order(jlTable$x),]
+       #jlTable <- jlTable[order(jlTable$x),]
      }#end if support interval
 #     
 #     
@@ -1278,7 +1299,9 @@ shinyServer(function(input, output, session) {
     thisAnnot <- thisChrAnnot[thisChrAnnot$transcript_start >= winLow & thisChrAnnot$transcript_end <= winHigh,]
     if(nrow(thisAnnot)==0){ #nothing is in the window, but lets still make a data.frame (actually make it big just to hopefully pick up one row from each strand...)
       thisAnnot <- thisChrAnnot[1:100,]
-    }        
+    }
+    thisAnnot <- thisAnnot[order(thisAnnot$transcript_start),]
+    
     #    urlBase <- 'http://www.maizesequence.org/Zea_mays/Transcript/ProteinSummary?db=core;t='
     urlBase <- 'http://maizegdb.org/cgi-bin/displaygenemodelrecord.cgi?id='
     soyurlBase <- 'http://www.soybase.org/sbt/search/search_results.php?category=FeatureName&search_term='
@@ -1397,11 +1420,14 @@ shinyServer(function(input, output, session) {
     #annotTable <- annotTable[,c("x","y","name","url","marker")]
 
     annotTable <- annotTable[,c("x","y","name","url")]
-    annotTable <- annotTable[order(annotTable$x),]
+    #annotTable <- annotTable[order(annotTable$x),]
 
     #annotTableReverse <- annotTableReverse[,c("x","y","name","url","marker")]
+    if(nrow(annotTableReverse)==0){
+      annotTableReverse <- data.frame(x=character(0),y=character(0),name=character(0),url=character(0),stringsAsFactors = FALSE)
+    }
     annotTableReverse <- annotTableReverse[,c("x","y","name","url")]
-    annotTableReverse <- annotTableReverse[order(annotTableReverse$x),]
+    #annotTableReverse <- annotTableReverse[order(annotTableReverse$x),]
     
     annotArray <- toJSONArray2(annotTable, json = F, names = T)
 #     for(i in 1:length(annotArray)){ #use this to add a symbol before or after the gene track
