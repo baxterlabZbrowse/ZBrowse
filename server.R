@@ -489,6 +489,7 @@ shinyServer(function(input, output, session) {
 
   #builds list of multiple selection boxes for traits that have multiple columns in dataset
   output$traitColBoxes <- renderUI({
+    if(is.null(input$datasets)){return()}
     if(input$plotAll == TRUE){return()}
     lapply(input$traitColumns, function(i) {      
       traits <- c("Select All",sort(unique(values[[input$datasets]][,i])))
@@ -551,12 +552,13 @@ shinyServer(function(input, output, session) {
   
   #returns datasets from uploaded file
   getdata <- reactive({
+    if(is.null(input$datasets)){return()}
     values[[input$datasets]]
   })
   
   #builds list of column names and type in dataset
   varnames <- reactive({
-    # if(is.null(input$datasets)) return()
+    if(is.null(input$datasets)) return()
     dat <- getdata_class()
     vars <- names(dat)
     names(vars) <- paste(vars, " {", dat, "}", sep = "")
@@ -564,6 +566,7 @@ shinyServer(function(input, output, session) {
   })
   
   getdata_class <- reactive({
+    if(is.null(input$datasets)) return()
     cls <- sapply(getdata(), function(x) class(x)[1])
     gsub("ordered","factor", cls)
   })
