@@ -1,5 +1,5 @@
 shinyServer(function(input, output, session) {
-
+  options("stringsAsFactors" = FALSE)
   #Load any saved datasets
   values <- reactiveValues()
   dataPath <- "./www/config/data/"
@@ -351,7 +351,7 @@ shinyServer(function(input, output, session) {
     if(is.null(input$datasets)){return()}
     cols <- varnames()    
     if(input$datasets %in% datasetProp()$dataset){
-      selected = datasetProp()$chrColumn[datasetProp()$dataset == input$datasets]
+      selected = cols[datasetProp()$chrColumn[datasetProp()$dataset == input$datasets]]
     }else{
       selected = names(cols[1])
     }    
@@ -362,10 +362,11 @@ shinyServer(function(input, output, session) {
     if(is.null(input$datasets)){return()}
     cols <- varnames()
     if(input$datasets %in% datasetProp()$dataset){
-      selected = datasetProp()$bpColumn[datasetProp()$dataset == input$datasets]
+      selected = cols[datasetProp()$bpColumn[datasetProp()$dataset == input$datasets]]
     }else{
       selected = names(cols[2])
     }
+    #selectInput("bpColumn", "Base Pair Column:", choices = as.list(cols), selected = selected, multiple = FALSE, selectize = TRUE)
     selectizeInput("bpColumn", "Base Pair Column:", choices = as.list(cols), selected = selected, multiple = FALSE, options = list(dropdownParent="body"))
   })
   
@@ -373,10 +374,11 @@ shinyServer(function(input, output, session) {
     if(is.null(input$datasets)){return()}
     cols <- varnames()
     if(input$datasets %in% datasetProp()$dataset){
-      selected = unlist(strsplit(datasetProp()$traitCol[datasetProp()$dataset == input$datasets],";"))
+      selected = cols[which(names(cols) %in% unlist(strsplit(datasetProp()$traitCol[datasetProp()$dataset == input$datasets],";")))]
     }else{
       selected = names(cols[3:4])
     }
+    print(selected)
     conditionalPanel(condition = "input.plotAll==false",
                      selectizeInput("traitColumns", "Group by these trait column(s):", choices = as.list(cols), selected = selected, multiple = TRUE, options = list(dropdownParent="body"))
     )        
@@ -396,7 +398,7 @@ shinyServer(function(input, output, session) {
     if(is.null(input$datasets)){return()}
     cols <- varnames()       
     if(input$datasets %in% datasetProp()$dataset){      
-      selected = datasetProp()$yAxisColumn[datasetProp()$dataset == input$datasets]
+      selected = cols[datasetProp()$yAxisColumn[datasetProp()$dataset == input$datasets]]
     }else{
       #selected = names(cols[10])
       selected = as.character(cols[10])
@@ -433,8 +435,8 @@ shinyServer(function(input, output, session) {
     if(is.null(input$datasets)){return()}
     cols <- varnames()
     if(input$datasets %in% datasetProp()$dataset){
-      selected = datasetProp()$SIbpStart[datasetProp()$dataset == input$datasets]
-      selectedEnd = datasetProp()$SIbpEnd[datasetProp()$dataset == input$datasets]
+      selected = cols[datasetProp()$SIbpStart[datasetProp()$dataset == input$datasets]]
+      selectedEnd = cols[datasetProp()$SIbpEnd[datasetProp()$dataset == input$datasets]]
     }else{
       selected = names(cols[2])
       selectedEnd = names(cols[2])
@@ -449,7 +451,7 @@ shinyServer(function(input, output, session) {
     if(is.null(input$datasets)){return()}
     cols <- varnames()       
     if(input$datasets %in% datasetProp()$dataset){  
-      selected = datasetProp()$SIyAxisColumn[datasetProp()$dataset == input$datasets]
+      selected = cols[datasetProp()$SIyAxisColumn[datasetProp()$dataset == input$datasets]]
     }else{
       #selected = names(cols[10])
       selected = as.character(cols[10])
@@ -680,7 +682,7 @@ shinyServer(function(input, output, session) {
     } #end SI total bp calculation
   })#end calculateTotalBP
   
-  output$pChart <- renderChart({
+  output$pChart <- renderChart2({
     #this function makes the chromsomeview chart  
     #subset whole chart based on selection
     chromChart <- values[[input$datasets]]
@@ -890,7 +892,7 @@ shinyServer(function(input, output, session) {
   })#end pchart
     
   #Genome wide chart
-  output$gChart <- renderChart({
+  output$gChart <- renderChart2({
        
     calculateTotalBP()
 
@@ -1119,7 +1121,7 @@ shinyServer(function(input, output, session) {
    })#end gchart
 
 
-  output$zChart <- renderChart({
+  output$zChart <- renderChart2({
     if(is.null(input$selected)) return()
 
     centerBP <- as.numeric(input$selected[[1]])
