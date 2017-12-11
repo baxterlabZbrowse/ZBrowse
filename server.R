@@ -378,7 +378,6 @@ shinyServer(function(input, output, session) {
     }else{
       selected = names(cols[3:4])
     }
-    print(selected)
     conditionalPanel(condition = "input.plotAll==false",
                      selectizeInput("traitColumns", "Group by these trait column(s):", choices = as.list(cols), selected = selected, multiple = TRUE, options = list(dropdownParent="body"))
     )        
