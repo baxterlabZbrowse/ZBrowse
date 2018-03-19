@@ -1414,6 +1414,8 @@ shinyServer(function(input, output, session) {
                                                                                      ),
                                                                                      stringsAsFactors=FALSE)})
     }else{#} if(input$organism == "Sorghum"){#strand is '+' or '-'
+      ###Make sure the necessary columns exist, if not make them and fill with NA
+      thisAnnot[,setdiff(c("name","ID","defLine","bestArabHitDefline","bestRiceHitDefline"),colnames(thisAnnot))] <- NA
       annotTable <- adply(thisAnnot[thisAnnot$strand=="+",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalForward,annotYvalForward,NA),url=paste0(sorgurlBase,x$ID),
                                                                                       name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Desc: %6$s<br>Top TAIR Hit: %7$s<br>Top Rice Hit: %8$s</td></tr></table>",
                                                                                                    x$name,
@@ -1446,13 +1448,14 @@ shinyServer(function(input, output, session) {
     }
     #annotTable <- annotTable[,c("x","y","name","url","marker")]
     annotTable <- annotTable[,c("x","y","name","url")]
+    annotTable$x <- as.numeric(annotTable$x)
     #annotTable <- annotTable[order(annotTable$x),]
-
     #annotTableReverse <- annotTableReverse[,c("x","y","name","url","marker")]
     if(nrow(annotTableReverse)==0){
-      annotTableReverse <- data.frame(x=character(0),y=character(0),name=character(0),url=character(0),stringsAsFactors = FALSE)
+      annotTableReverse <- data.frame(x=numeric(0),y=character(0),name=character(0),url=character(0),stringsAsFactors = FALSE)
     }
     annotTableReverse <- annotTableReverse[,c("x","y","name","url")]
+    annotTableReverse$x <- as.numeric(annotTableReverse$x)
     #annotTableReverse <- annotTableReverse[order(annotTableReverse$x),]
     
     annotArray <- toJSONArray2(annotTable, json = F, names = T)
