@@ -5,7 +5,7 @@ if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
 
 if(!is.element('rCharts', installed.packages()[,1])){
   require(devtools)
-  install_github('rCharts', 'ramnathv')
+  install_github('ramnathv/rCharts')
 }
 
 shiny::runApp(launch.browser = TRUE)
