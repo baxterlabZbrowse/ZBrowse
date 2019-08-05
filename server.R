@@ -1310,7 +1310,7 @@ shinyServer(function(input, output, session) {
     urlBase <- 'http://maizegdb.org/cgi-bin/displaygenemodelrecord.cgi?id='
     soyurlBase <- 'http://www.soybase.org/sbt/search/search_results.php?category=FeatureName&search_term='
     araburlBase <- 'http://arabidopsis.org/servlets/TairObject?type=locus&name='
-    sorgurlBase <- 'http://phytozome.jgi.doe.gov/pz/portal.html#!gene?search=1&detail=1&searchText=transcriptid:'
+    sorgurlBase <- 'https://phytozome.jgi.doe.gov/pz/portal.html#!gene?searchText=locusName:'
     ensemblBase <- 'http://ensembl.gramene.org/Zea_mays/Gene/Summary?g='
     annotYvalReverse <- 0.01    
     #if(input$axisLimBool == TRUE){annotYvalReverse <- input$axisMin+0.01}
@@ -1416,7 +1416,7 @@ shinyServer(function(input, output, session) {
     }else{#} if(input$organism == "Sorghum"){#strand is '+' or '-'
       ###Make sure the necessary columns exist, if not make them and fill with NA
       thisAnnot[,setdiff(c("name","ID","defLine","bestArabHitDefline","bestRiceHitDefline"),colnames(thisAnnot))] <- NA
-      annotTable <- adply(thisAnnot[thisAnnot$strand=="+",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalForward,annotYvalForward,NA),url=paste0(sorgurlBase,x$ID),
+      annotTable <- adply(thisAnnot[thisAnnot$strand=="+",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalForward,annotYvalForward,NA),url=paste0(sorgurlBase,x$name),
                                                                                       name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Desc: %6$s<br>Top TAIR Hit: %7$s<br>Top Rice Hit: %8$s</td></tr></table>",
                                                                                                    x$name,
                                                                                                    #1,#x$V2.1,
@@ -1431,7 +1431,7 @@ shinyServer(function(input, output, session) {
                                                                                       ),
                                                                                       stringsAsFactors=FALSE)})   
       
-      annotTableReverse <- adply(thisAnnot[thisAnnot$strand=="-",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalReverse,annotYvalReverse,NA),url=paste0(sorgurlBase,x$ID),
+      annotTableReverse <- adply(thisAnnot[thisAnnot$strand=="-",],1,function(x) {data.frame(x=c(x$transcript_start,x$transcript_end,x$transcript_end),y=c(annotYvalReverse,annotYvalReverse,NA),url=paste0(sorgurlBase,x$name),
                                                                                              name=sprintf("<table cellpadding='4' style='line-height:1.5'><tr><th>%1$s</th></tr><tr><td align='left'>Location: %2$s-%3$s<br>Chromosome: %4$s, Strand: %5$s<br>Desc: %6$s<br>Top TAIR Hit: %7$s<br>Top Rice Hit: %8$s</td></tr></table>",
                                                                                                           x$name,
                                                                                                           #1,#x$V2.1,
