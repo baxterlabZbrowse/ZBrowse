@@ -25,9 +25,9 @@ library(tools)
 #library(shinyIncubator)
 #options(shiny.maxRequestSize=-1)
 
-addResourcePath('datatables','www/DataTables/')
-addResourcePath('tabletools','www/TableTools/')
-addResourcePath('highcharts','www/highcharts/')
+addResourcePath('datatables','www/DataTables')
+addResourcePath('tabletools','www/TableTools')
+addResourcePath('highcharts','www/highcharts')
 
 
 #aggTable <- read.table("./www/config/data/sigGWASsnpsCombinedIterations.longhorn.allLoc.csv",sep=",",stringsAsFactors=FALSE,head=TRUE)
